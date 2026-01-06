@@ -1,4 +1,4 @@
-import { createExpressController, Schemas, Tables } from "@packages/api-types";
+ 
 import { RequestHandler } from "express";
 import {
   questionService as defaultQuestionService,
@@ -8,6 +8,8 @@ import {
   AnswerService,
   answerService as defaultAnswerService,
 } from "./answer.service.js";
+import { createExpressController } from "@packages/api-typing";
+import { webdevApiContract } from "@packages/webdev-api-contracts";
 
 export class QuestionSystemController {
   constructor(

@@ -1,33 +1,28 @@
-import { publicWalletRowSchema } from "@/contracts/webdevApi/supabase.schema.js";
 import {
   createEndpoint,
   createRoute,
   createRoutes,
 } from "@packages/api-typing";
-import z from "zod";
 import { SchemaFactory } from "../../schemaFactory.utils.js";
-import { transactionRoutes } from "./transaction.route.js";
+import z from "zod";
+import { publicWalletTransactionRowSchema } from "@/supabase.schema.js";
 
-export const walletRoutes = createRoute({
-  path: "/wallet",
+export const transactionRoutes = createRoute({
+  path: "/transactions",
   routes: createRoutes({
-    get: createEndpoint({
+    list: createEndpoint({
       method: "GET",
       request: {
         params: z.object({
           userId: z.string(),
         }),
+        query: SchemaFactory.Request.Paginated.query(),
       },
       response: {
-        200: z.object({
-          status: z.string(),
-          message: z.string(),
-          data: publicWalletRowSchema,
-        }),
+        200: SchemaFactory.Response.paginated(publicWalletTransactionRowSchema),
         500: SchemaFactory.Response.error(),
         404: SchemaFactory.Response.error(),
       },
     }),
-    transactions: transactionRoutes,
   }),
 });

@@ -121,7 +121,7 @@ export const createContract = <T extends RouteType>(
         contract[key] = buildContract(value);
       } else {
         // if value is an endpoint, assign directly
-        contract[key] = value as EndpointType;
+        contract[key] = value ;
       }
     }
     return contract;

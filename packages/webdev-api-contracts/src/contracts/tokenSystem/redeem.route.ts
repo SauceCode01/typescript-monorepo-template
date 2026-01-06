@@ -1,4 +1,4 @@
-import { publicWalletRowSchema } from "@/contracts/webdevApi/supabase.schema.js";
+import { publicWalletRowSchema } from "@/supabase.schema.js";
 import {
   createEndpoint,
   createRoute,

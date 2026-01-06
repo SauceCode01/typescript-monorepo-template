@@ -2,10 +2,6 @@
   "name": "@packages/webdev-api-contracts",
   "version": "1.0.0",
   "main": "./dist/index.js",
-  "exports": {
-    ".": "./dist/index.js",
-    "./webdevApi": "./dist/contracts/webdevApi/index.js"
-  },
   "types": "./dist/index.d.ts",
   "type": "module",
   "files": [

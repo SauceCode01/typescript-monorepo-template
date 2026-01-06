@@ -1,4 +1,4 @@
-import { publicUserProfileRowSchema } from "@/contracts/webdevApi/supabase.schema.js";
+import { publicUserProfileRowSchema } from "@/supabase.schema.js";
 import {
   createEndpoint,
   createRoute,

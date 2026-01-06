@@ -1,26 +1,26 @@
 import {
-  publicStudyJamInsertSchema,
-  publicStudyJamRowSchema,
-} from "@/contracts/webdevApi/supabase.schema.js";
+  publicAnnouncementInsertSchema,
+  publicAnnouncementRowSchema,
+} from "@/supabase.schema.js";
+import { SchemaFactory } from "../../schemaFactory.utils.js";
+import z from "zod";
 import {
   createEndpoint,
   createRoute,
   createRoutes,
 } from "@packages/api-typing";
-import { SchemaFactory } from "../../schemaFactory.utils.js";
-import z from "zod";
 
-export const studyJamRoutes = createRoutes({
+export const announcementRoutes = createRoutes({
   post: createEndpoint({
     method: "POST",
     request: {
-      body: publicStudyJamInsertSchema.omit({
+      body: publicAnnouncementInsertSchema.omit({
         creator_id: true,
         id: true,
       }),
     },
     response: {
-      201: SchemaFactory.Response.single(publicStudyJamRowSchema),
+      201: SchemaFactory.Response.single(publicAnnouncementRowSchema),
       500: SchemaFactory.Response.error(),
       400: SchemaFactory.Response.error(),
     },
@@ -32,24 +32,24 @@ export const studyJamRoutes = createRoutes({
       query: SchemaFactory.Request.Paginated.query(),
     },
     response: {
-      200: SchemaFactory.Response.paginated(publicStudyJamRowSchema),
+      200: SchemaFactory.Response.paginated(publicAnnouncementRowSchema),
       500: SchemaFactory.Response.error(),
       400: SchemaFactory.Response.error(),
     },
   }),
 
-  studyJam: createRoute({
-    path: "/:studyJamId",
+  announcement: createRoute({
+    path: "/:announcementId",
     routes: createRoutes({
       get: createEndpoint({
         method: "GET",
         request: {
           params: z.object({
-            studyJamId: z.string(),
+            announcementId: z.string(),
           }),
         },
         response: {
-          200: SchemaFactory.Response.single(publicStudyJamRowSchema),
+          200: SchemaFactory.Response.single(publicAnnouncementRowSchema),
           500: SchemaFactory.Response.error(),
           400: SchemaFactory.Response.error(),
           404: SchemaFactory.Response.error(),
@@ -59,15 +59,15 @@ export const studyJamRoutes = createRoutes({
         method: "PUT",
         request: {
           params: z.object({
-            studyJamId: z.string(),
+            announcementId: z.string(),
           }),
-          body: publicStudyJamInsertSchema.omit({
+          body: publicAnnouncementInsertSchema.omit({
             creator_id: true,
             id: true,
           }),
         },
         response: {
-          200: SchemaFactory.Response.single(publicStudyJamRowSchema),
+          200: SchemaFactory.Response.single(publicAnnouncementRowSchema),
           500: SchemaFactory.Response.error(),
           400: SchemaFactory.Response.error(),
           404: SchemaFactory.Response.error(),
@@ -77,7 +77,7 @@ export const studyJamRoutes = createRoutes({
         method: "DELETE",
         request: {
           params: z.object({
-            studyJamId: z.string(),
+            announcementId: z.string(),
           }),
         },
         response: {

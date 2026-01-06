@@ -1,7 +1,7 @@
 import {
   publicTokenInsertSchema,
   publicTokenRowSchema,
-} from "@/contracts/webdevApi/supabase.schema.js";
+} from "@/supabase.schema.js";
 import {
   createEndpoint,
   createRoute,

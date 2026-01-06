@@ -6,7 +6,7 @@ import {
 import {
   publicQuestionInsertSchema,
   publicQuestionRowSchema,
-} from "@/contracts/webdevApi/supabase.schema.js";
+} from "@/supabase.schema.js";
 import z from "zod";
 import { SchemaFactory } from "../../schemaFactory.utils.js";
 import { answerRoutes } from "./answer.routes.js";
