@@ -7,7 +7,7 @@ import Link from "next/link";
 const page = () => {
   const fetchApi = async () => {
     const result = await callEndpoint(
-      "http://localhost:8000",
+      process.env.NEXT_PUBLIC_API_BASE_URL!,
       webdevApiContract.questionSystem.questions.post,
       {
         body: {
