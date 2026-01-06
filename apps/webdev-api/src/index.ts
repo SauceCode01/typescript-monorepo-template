@@ -9,23 +9,23 @@ const app = express();
 const port = process.env.PORT || 8000;
 
 // CORS config
-// app.use(
-//   cors({
-//     origin: [
-//       process.env.DEV_MODE === "true" && "http://localhost:3000",
-//       "https://gdg-webdev.vercel.app",
-//     ],
-//     credentials: true,
-//   })
-// );
-
-// Cors config
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: [
+      process.env.DEV_MODE === "true" && "http://localhost:3000",
+      process.env.CLIENT_URL!,
+    ],
     credentials: true,
   })
 );
+
+// Cors config
+// app.use(
+//   cors({
+//     origin: ["http://localhost:3000"],
+//     credentials: true,
+//   })
+// );
 
 app.use(loggerMiddleware.pino);
 
