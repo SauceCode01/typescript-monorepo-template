@@ -1,0 +1,9 @@
+
+{
+  "name": "gdg-webdev-platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
