@@ -141,13 +141,26 @@ export type ContractDefinition<T extends RouteType> = {
 export const createContract = <T extends RouteType>(
   rootRoute: T
 ): ContractDefinition<T> => {
-  const buildContract = (route: RouteType): any => {
+  
+  // Recursive helper that carries the 'currentPath' down the tree
+  const buildContract = (route: RouteType, currentPath: string = ""): any => {
     const contract: any = {};
+    
+    // Clean path joining (handles slashes)
+    const normalizePath = (p: string) => p.startsWith("/") ? p : `/${p}`;
+    const segment = route.path === "/" ? "" : normalizePath(route.path);
+    const fullPath = currentPath + segment;
+
     for (const [key, value] of Object.entries(route.routes)) {
-      if ("routes" in value) { // Safer than instanceof for plain objects
-        contract[key] = buildContract(value as RouteType);
+      if ("routes" in value) {
+        // It's a Route -> Recurse and pass the new path
+        contract[key] = buildContract(value as RouteType, fullPath);
       } else {
-        contract[key] = value;
+        // It's an Endpoint -> Inject the Full Path!
+        const endpoint = value as EndpointType;
+        // We attach the computed path to the endpoint object
+        (endpoint as any).path = fullPath; 
+        contract[key] = endpoint;
       }
     }
     return contract;

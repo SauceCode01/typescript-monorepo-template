@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
 import z, { ZodType } from "zod";
-import { EndpointType } from "./types/contract.types.js";
-import { InferHandlerResult, InferRequestInput, ResponseSchemaOf } from "./types/enforcer.type.js";
+import { EndpointType } from "../types/contract.types.js";
+import { InferHandlerResult, InferRequestInput, ResponseSchemaOf } from "../types/enforcer.type.js";
      
 export const createExpressController = <T extends EndpointType>(
   schema: T,

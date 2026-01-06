@@ -13,7 +13,7 @@ import { tokenSystemRoutes } from "./tokenSystem/index.js";
 import { userSystemRoutes } from "./userSystem/index.js";
 
 export const webdevApiRoutes = createRoute({
-  path: "/",
+  path: "/api",
   routes: createRoutes({
     announcementSystem: createRoute({
       path: "/announcement-system",
