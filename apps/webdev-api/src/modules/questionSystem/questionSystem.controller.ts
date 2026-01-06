@@ -29,7 +29,7 @@ export class QuestionSystemController {
 
       return output(201, {
         status: "success",
-        message: "this route is not yet implemented.",
+        message: "hello there!",
         data: data,
       });
     }
