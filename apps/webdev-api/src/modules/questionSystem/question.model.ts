@@ -1,40 +1,12 @@
-import { supabase } from "@/lib/supabase.js"; 
-import { publicQuestionInsertSchema, publicQuestionUpdateSchema, Tables, TablesInsert, TablesUpdate } from "@packages/api-types";
-import { SupabaseClient } from "@supabase/supabase-js";
+import {
+  publicQuestionInsertSchema,
+  publicQuestionRowSchema,
+  Tables,
+  TablesInsert,
+} from "@packages/webdev-api-contracts";
 
 export class QuestionModel {
-  constructor(private supabaseClient: SupabaseClient) {
-    this.supabaseClient = supabaseClient;
-  }
-
-  async listQuestionsByPage(pageNumber: number, pageSize: number) {
-    const from = (pageNumber - 1) * pageSize;
-    const to = from + pageSize - 1;
-
-    const { data, error } = await this.supabaseClient
-      .from("question")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .range(from, to);
-
-    if (error) {
-      return { error };
-    }
-
-    return { data: data as Tables<"question">[] };
-  }
-
-  async countQuestions() {
-    const { count, error } = await this.supabaseClient
-      .from("question")
-      .select("*", { count: "exact", head: true });
-
-    if (error) {
-      return { error };
-    }
-
-    return { data: count || 0 };
-  }
+  constructor() {}
 
   async createQuestion(createDTO: TablesInsert<"question">) {
     const parseResult = publicQuestionInsertSchema.safeParse(createDTO);
@@ -43,66 +15,24 @@ export class QuestionModel {
       return { error: parseResult.error };
     }
 
-    const { data, error } = await this.supabaseClient
-      .from("question")
-      .insert(createDTO)
-      .select("*")
-      .single();
+    const mockResult: Tables<"question"> = {
+      answer: 0,
+      category: null,
+      created_at: "2023-08-25T00:00:00.000Z",
+      creator_id: "123123",
+      explanation: null,
+      id: "123123",
+      option_a: "Option A",
+      option_b: "Option B",
+      option_c: "Option C",
+      option_d: "Option D",
+      question: "This is a question",
+      schedule: "2023-08-25T00:00:00.000Z",
+      value: 100,
+    } as Tables<"question">;
 
-    if (error) return { error };
-
-    return { data: data as Tables<"question"> };
-  }
-
-  async getQuestionById(id: string) {
-    const { data, error } = await this.supabaseClient
-      .from("question")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error) {
-      return { error };
-    }
-
-    return { data: data as Tables<"question"> };
-  }
-
-  async updateQuestion(id: string, updateDTO: TablesUpdate<"question">) {
-
-    const parseRes = publicQuestionUpdateSchema.safeParse(updateDTO);
-
-    if (!parseRes.success) {
-      return { error: parseRes.error };
-    }
-
-
-    const { data, error } = await this.supabaseClient
-      .from("question")
-      .update(updateDTO)
-      .eq("id", id)
-      .select("*")
-      .single();
-
-    if (error) {
-      return { error };
-    }
-
-    return { data: data as Tables<"question"> };
-  }
-
-  async deleteQuestion(id: string) {
-    const { error } = await this.supabaseClient
-      .from("question")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      return { error };
-    }
-
-    return { data: null };
+    return { data: mockResult };
   }
 }
 
-export const questionModel = new QuestionModel(supabase);
+export const questionModel = new QuestionModel();
