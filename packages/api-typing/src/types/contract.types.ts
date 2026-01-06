@@ -165,7 +165,6 @@ export const createContract = <T extends RouteType>(
     }
     return contract;
   };
-
   return buildContract(rootRoute) as ContractDefinition<T>;
 };
 
