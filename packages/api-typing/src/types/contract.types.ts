@@ -108,25 +108,51 @@ export const createEndpoint = <T extends EndpointType>(endpoint: T): T => {
   return newEndpoint as T;
 };
 
+
+export type InferEndpointData<T extends EndpointType> = {
+  method: T["method"];
+  path: string; // Add path if you want frontend to know it
+  request: {
+    [K in keyof T["request"]]: T["request"][K] extends ZodType<any>
+      ? z.infer<T["request"][K]>
+      : never;
+  };
+  response: {
+    [K in keyof T["response"]]: T["response"][K] extends ZodType<any>
+      ? z.infer<T["response"][K]>
+      : never;
+  };
+};
+
+export type ClientContract<T> = {
+  [K in keyof T]: T[K] extends EndpointType
+    ? InferEndpointData<T[K]>
+    : ClientContract<T[K]>;
+};
+
+export type ContractDefinition<T extends RouteType> = {
+  [K in keyof T["routes"]]: T["routes"][K] extends RouteType
+    ? ContractDefinition<T["routes"][K]> 
+    : T["routes"][K] extends EndpointType
+      ? T["routes"][K] // 👈 RETURN THE ENDPOINT (With Schemas), NOT THE INFERRED DATA
+      : never;
+};
+
 export const createContract = <T extends RouteType>(
   rootRoute: T
-): ApiContract<T> => {
-  const buildContract = <T extends RouteType>(route: RouteType): ApiContract<T> => {
+): ContractDefinition<T> => {
+  const buildContract = (route: RouteType): any => {
     const contract: any = {};
-
-    // iterate thru route.routes
     for (const [key, value] of Object.entries(route.routes)) {
-      if (value instanceof RouteType) {
-        // if value is a route, recurse
-        contract[key] = buildContract(value);
+      if ("routes" in value) { // Safer than instanceof for plain objects
+        contract[key] = buildContract(value as RouteType);
       } else {
-        // if value is an endpoint, assign directly
-        contract[key] = value ;
+        contract[key] = value;
       }
     }
     return contract;
   };
-  return buildContract(rootRoute) as ApiContract<T>;
+  return buildContract(rootRoute) as ContractDefinition<T>;
 };
 
 // export type ContractType<T extends RoutesType> = {

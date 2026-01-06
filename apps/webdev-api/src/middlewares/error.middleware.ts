@@ -35,7 +35,7 @@ export const globalErrorHandler = (
       {
         status: "500",
         title: "Internal Server Error",
-        detail: `Something went wrong on our end. ${message}`,
+        detail: `Something went wrong on our end. ${JSON.stringify(err)}`,
       },
     ],
   });
