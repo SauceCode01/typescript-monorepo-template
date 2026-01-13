@@ -17,7 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@libs/api-typing": "^1.0.0",
+    "@libs/api-typing": "workspace:*",
     "express": "^5.2.1",
     "zod": "^4.3.2"
   },

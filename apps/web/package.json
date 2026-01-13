@@ -9,8 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@libs/api-typing": "^1.0.0",
-    "@packages/api-contracts": "^1.0.0",
+    "@libs/api-typing": "workspace:*",
+    "@packages/api-contracts": "workspace:*",
+    "@supabase/supabase-js": "^2.90.1",
+    "cookies-next": "^6.1.1",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3"

@@ -1,7 +1,7 @@
 "use client";
 
 import { configs } from "@/configs/servers.config";
-import { callEndpoint } from "@packages/api-typing";
+import { callEndpoint } from "@libs/api-typing";
 import { Contract, ContractTypes } from "@packages/api-contracts"; 
 import React from "react";
 

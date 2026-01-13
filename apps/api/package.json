@@ -14,8 +14,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@libs/api-typing": "^1.0.0",
+    "@libs/api-typing": "workspace:*",
+    "@packages/api-contracts": "workspace:*",
     "@supabase/supabase-js": "^2.86.0",
+    "@types/express-serve-static-core": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

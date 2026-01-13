@@ -1,6 +1,7 @@
 import { createExpressController } from "@libs/api-typing";
 import { ArticleService, articleServiceInstance } from "./article.service.js";
 import { Contract } from "@packages/api-contracts";
+import { RequestHandler } from "express-serve-static-core";
 
 export class ArticleController {
   constructor(

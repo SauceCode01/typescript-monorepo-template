@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response } from "express";
+import { Request, RequestHandler as importRequestHandler, Response } from "express";
 import { ZodType, ZodError } from "zod";
 import { EndpointDef } from "@/types/contract.types.js";
 import {
@@ -6,6 +6,8 @@ import {
   InferRequestInput,
   ResponseSchemaOf,
 } from "@/types/enforcer.type.js";
+
+export type RequestHandler = importRequestHandler;
 
 // --- Custom Errors ---
 
@@ -53,6 +55,7 @@ export class ServerResponseValidationError extends Error {
     }
   );
  */
+ 
 export const createExpressController = <T extends EndpointDef>(
   schema: T,
   handler: ({

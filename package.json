@@ -1,19 +1,25 @@
 {
   "name": "typescript-monorepo",
   "version": "0.0.0",
-  "description": "",
-  "license": "MIT",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "libs/*"
-  ],
+  "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48",
   "scripts": {
-    "build-libs": "npm run build --workspace=@libs/api-typing",
-    "build-packages": "npm run build --workspace=@packages/api-contracts",
-    "build-apps": "npm run build --workspace=apps/web",
-    "build": "npm run build-libs && npm run build-packages && npm run build-apps",
-    "postinstall": "npm run build"
+    "preinstall": "npx only-allow pnpm",
+    "dev": "turbo dev --parallel --filter=\"./apps/*\"",
+    "start": "turbo start --filter=\"./apps/*\"",
+    "build": "turbo build",
+    "build:libs": "turbo build --filter=\"./libs/*\"",
+    "build:packages": "turbo build --filter=\"./packages/*\"",
+    "build:apps": "turbo build --filter=\"./apps/*\""
+  },
+  "devDependencies": {
+    "prettier": "^3.7.4",
+    "turbo": "latest",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "npm": "please-use-pnpm",
+    "yarn": "please-use-pnpm",
+    "pnpm": ">=9.0.0"
   }
 }
