@@ -31,7 +31,7 @@ const ApiHealthCheckCard = () => {
       setError(null);
 
       const result = await callEndpoint(
-        configs.nexusApiBaseUrl,
+        configs.apiBaseUrl,
         Contract.health.get,
         {}
       );
