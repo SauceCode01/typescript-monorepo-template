@@ -55,9 +55,7 @@ package-lock.json # Optional: Keep this if you want to lock versions
 # BUILD OUTPUTS & COMPILED FILES
 # ==============================================================================
 dist/
-build/
-out/
-lib/
+build/ 
 *.tsbuildinfo
 
 # ==============================================================================
