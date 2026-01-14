@@ -6,6 +6,7 @@
     "start": "node --env-file=.env dist/index.js"
   },
   "dependencies": {
+    "@packages/rest-contracts": "workspace:*",
     "@configs/typescript-config": "workspace:*",
     "@packages/api-contracts": "workspace:*",
     "@packages/api-typing": "workspace:*",
