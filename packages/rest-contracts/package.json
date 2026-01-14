@@ -1,16 +1,16 @@
 {
   "name": "@packages/rest-contracts",
-   "exports": {
+  "exports": {
     ".": "./dist/index.js"
   },
   "imports": {
     "#*": "./dist/*"
   },
   "scripts": {
-    "dev": "tsc --watch ", 
-    "generate": "tsx scripts/generate.ts",
+    "dev": "tsc --watch ",
+    "generate": "contract-gen -i ./src/routes -o ./src/contract.ts",
     "build": "npm run generate && tsc"
-  }, 
+  },
   "dependencies": {
     "@packages/contract-gen": "workspace:*",
     "@packages/api-typing": "workspace:*",
