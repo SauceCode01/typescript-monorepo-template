@@ -7,6 +7,7 @@ import * as api_archives_archiveId_PATCH from "./routes/archives/[archiveId]/PAT
 
 import * as api_users_userId_GET from "./routes/users/[userId]/GET";
 import { Request, RequestHandler, Response } from "express";
+import { EndpointTypes } from "./contract";
 
 // this should be the final output.
 // the data structure mirrors the route structure
@@ -156,7 +157,28 @@ type inferRequestHandler<T> = ({
   };
 }) => Promise<inferResponse<T>>;
 
-export const createExpressController = <T>(
+export const createExpressController = <T  >(
   contract: T,
   handler: inferRequestHandler<T>
-) => {};
+) => {
+
+};
+
+
+ 
+
+
+/**
+ * endpoint: {
+ *  meta: value
+ * meta: value
+ * request: {
+ *  query: schema
+ *  params: schema
+ *  body: schema
+ * }
+ * response: {
+ *  statusCode: schema
+ * }
+ * }
+ */

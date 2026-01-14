@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "tsc --watch ",
-    "generate": "contract-gen -i ./src/routes -o ./src/contract.ts",
+    "generate": "contract-gen",
     "build": "npm run generate && tsc"
   },
   "dependencies": {

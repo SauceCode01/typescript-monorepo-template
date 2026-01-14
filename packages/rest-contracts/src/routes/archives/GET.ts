@@ -1,12 +1,6 @@
 import { archiveSchema } from "#models/archive.js";
 import { z } from "zod";
 
-export const user = z.object({
-  id: z.string().uuid().describe("Unique identifier for the user"),
-  name: z.string().describe("Name of the user"),
-  email: z.string().email().describe("Email address of the user"),
-});
-
 export const query = z.object({
   page: z
     .object({

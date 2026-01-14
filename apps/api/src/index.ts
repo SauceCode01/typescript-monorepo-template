@@ -2,12 +2,19 @@ import express from "express";
 import { setupLoader } from "./loaders/setup.loader.js";
 import { parsersLoader } from "./loaders/parse.loader.js";
 import { routesLoader } from "./loaders/routes.loader.js";
-import { errorHandlerLoader } from "./loaders/errorHandlers.loader.js"; 
+import { errorHandlerLoader } from "./loaders/errorHandlers.loader.js";
 import { configs } from "./configs/configs.js";
-import {contract} from "@packages/rest-contracts";
+import { EndpointSchemas, RouteTree, Response } from "@packages/rest-contracts";
 
+const a = RouteTree.archives.archiveId.PATCH.metadata.path;
 
-contract.users.sw_param_userId.GET_params;
+// const b: Response<"archives_archiveId_PATCH">[200] = {
+//   status: "string",
+//   message: "string",
+//   data: {
+//     something: "string",
+//   },
+// };
 
 const app = express();
 const port = configs.port;
