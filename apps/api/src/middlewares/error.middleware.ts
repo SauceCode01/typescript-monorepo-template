@@ -1,7 +1,7 @@
 import {
   ClientRequestValidationError,
   ServerResponseValidationError,
-} from "@libs/api-typing";
+} from "@packages/api-typing";
 import { Request, Response, NextFunction } from "express";
 import z, { ZodError } from "zod";
 

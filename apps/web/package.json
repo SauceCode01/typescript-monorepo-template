@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@libs/api-typing": "workspace:*",
+    "@packages/api-typing": "workspace:*",
     "@packages/api-contracts": "workspace:*",
     "@supabase/supabase-js": "^2.90.1",
     "cookies-next": "^6.1.1",

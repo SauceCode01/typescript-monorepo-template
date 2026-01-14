@@ -3,7 +3,7 @@ import {
   callEndpoint,
   createContract,
   createExpressController,
-} from "@libs/api-typing";
+} from "@packages/api-typing";
 import { root } from "./routes/index.js";
 import { Models } from "./models/index.js";
 

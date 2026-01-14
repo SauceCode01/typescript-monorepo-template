@@ -1,4 +1,4 @@
-import { createExpressController } from "@libs/api-typing";
+import { createExpressController } from "@packages/api-typing";
 import { Contract } from "@packages/api-contracts";
 
 export class HealthController {

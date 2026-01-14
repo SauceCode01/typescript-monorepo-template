@@ -1,25 +1,21 @@
 {
-  "name": "typescript-monorepo",
-  "version": "0.0.0",
+  "name": "ts-monorepo-template",
   "private": true,
-  "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "dev": "turbo dev --parallel --filter=\"./apps/*\"",
-    "start": "turbo start --filter=\"./apps/*\"",
-    "build": "turbo build",
-    "build:libs": "turbo build --filter=\"./libs/*\"",
-    "build:packages": "turbo build --filter=\"./packages/*\"",
-    "build:apps": "turbo build --filter=\"./apps/*\""
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "start" : "turbo run start",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
-    "turbo": "latest",
-    "typescript": "^5.9.3"
+    "turbo": "^2.7.4",
+    "typescript": "5.9.2"
   },
+  "packageManager": "pnpm@9.0.0",
   "engines": {
-    "npm": "please-use-pnpm",
-    "yarn": "please-use-pnpm",
-    "pnpm": ">=9.0.0"
+    "node": ">=18"
   }
 }

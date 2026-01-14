@@ -1,5 +1,5 @@
-import { SchemaFactory } from "@/utils/schemaFactory.utils.js";
-import { createEndpoint, createRoute } from "@libs/api-typing";
+import { SchemaFactory } from "#utils/schemaFactory.utils.js";
+import { createEndpoint, createRoute } from "@packages/api-typing";
 import { z } from "zod";
 
 export const health = createRoute({

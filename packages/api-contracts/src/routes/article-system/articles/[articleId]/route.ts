@@ -1,7 +1,7 @@
-import { createRoute } from "@libs/api-typing";
+import { createRoute } from "@packages/api-typing";
 import z from "zod";
-import { SchemaFactory } from "@/utils/schemaFactory.utils.js";
-import { Models } from "@/models/index.js";
+import { SchemaFactory } from "#utils/schemaFactory.utils.js";
+import { Models } from "#models/index.js";
 
 export const article = createRoute({
   path: "/:articleId",

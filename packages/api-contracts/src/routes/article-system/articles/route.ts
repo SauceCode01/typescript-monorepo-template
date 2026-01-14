@@ -1,8 +1,8 @@
-import { createEndpoint, createRoute } from "@libs/api-typing";
+import { createEndpoint, createRoute } from "@packages/api-typing";
 import { get } from "node:http";
 import article from "./[articleId]/route.js";
-import { SchemaFactory } from "@/utils/schemaFactory.utils.js";
-import { Models } from "@/models/index.js";
+import { SchemaFactory } from "#utils/schemaFactory.utils.js";
+import { Models } from "#models/index.js";
 
 export const articles = createRoute({
   path: "/articles",

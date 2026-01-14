@@ -1,8 +1,8 @@
-import { EndpointDef } from "@/types/contract.types.js";
+import { EndpointDef } from "#types/contract.types.js";
 import {
   InferRequestInput,
   InferHandlerResult,
-} from "@/types/enforcer.type.js";
+} from "#types/enforcer.type.js";
 
 // Helper: Extra options like Auth
 type FetchOptions = Omit<RequestInit, "body" | "method"> & {

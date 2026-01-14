@@ -1,11 +1,11 @@
 import { Request, RequestHandler as importRequestHandler, Response } from "express";
 import { ZodType, ZodError } from "zod";
-import { EndpointDef } from "@/types/contract.types.js";
+import { EndpointDef } from "#types/contract.types.js";
 import {
   InferHandlerResult,
   InferRequestInput,
   ResponseSchemaOf,
-} from "@/types/enforcer.type.js";
+} from "#types/enforcer.type.js";
 
 export type RequestHandler = importRequestHandler;
 

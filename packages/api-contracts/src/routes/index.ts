@@ -1,4 +1,4 @@
-import { ApiTypes, createContract, createRoute } from "@libs/api-typing";
+import { ApiTypes, createContract, createRoute } from "@packages/api-typing";
 
 import { articleSystem } from "./article-system/route.js";
 import { health } from "./health/route.js";
