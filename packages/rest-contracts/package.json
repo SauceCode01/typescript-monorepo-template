@@ -1,7 +1,7 @@
 {
   "name": "@packages/rest-contracts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/contract.js"
   },
   "imports": {
     "#*": "./dist/*"
@@ -12,19 +12,18 @@
     "build": "npm run generate && tsc"
   },
   "dependencies": {
-    "@packages/contract-gen": "workspace:*",
-    "@packages/api-typing": "workspace:*",
+    "@packages/contract-gen": "workspace:^", 
     "@configs/typescript-config": "workspace:*",
-    "express": "^5.2.1",
-    "zod": "^4.3.2"
+    "express": "5.2.1",
+    "zod": "4.3.2"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/node": "^25.0.3",
-    "supabase": "^2.70.5",
-    "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.16",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "@types/express": "5.0.6",
+    "@types/node": "25.0.3",
+    "supabase": "2.70.5",
+    "ts-node": "10.9.2",
+    "tsc-alias": "1.8.16",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
   }
 }

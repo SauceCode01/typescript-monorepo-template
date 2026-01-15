@@ -4,42 +4,27 @@ import { parsersLoader } from "./loaders/parse.loader.js";
 import { routesLoader } from "./loaders/routes.loader.js";
 import { errorHandlerLoader } from "./loaders/errorHandlers.loader.js";
 import { configs } from "./configs/configs.js";
-import { EndpointSchemas, RouteTree, Response } from "@packages/rest-contracts"; 
+import { EndpointSchemas, RouteTree, Response } from "@packages/rest-contracts";
 
 // import { createExpressController } from "@packages/api-typing";
-import { createExpressController, EndpointDef } from "@packages/contract-gen";
-import { Contract } from "@packages/api-contracts";
-import z, { ZodAny, ZodType } from "zod";
-  
- export interface EndpointDefff {
-  request?: {
-    params?: ZodType<any>;
-    body?: ZodType<any>;
-    query?: ZodType<any>;
-  };
-  response: {
-    [statusCode: number]: ZodType<any>;
-  };
-  metadata?: {
-    method: string;
-    path: string;
-    signature: string;
-  };
-}
-const a:EndpointDef   = RouteTree.archives.archiveId.PATCH;
+import { createExpressController } from "@packages/contract-gen";
 
-const b  = Contract.articleSystem.articles.get;
+const handler = createExpressController(
+  RouteTree.archives.archiveId.PATCH,
+  async ({ input, ctx, output }) => {
+    // implement your logic here
+    input;
 
-// const handler = createExpressController(
-//   a,
-//   async ({ input, ctx, output }) => {
-//     // implement your logic here
-//   }
-// )
+    return output(200, {
+      message: "Archive updated successfully",
+      archiveId: input.params.archiveId,
+    });
+  }
+);
 
-const createEController = <T extends EndpointDef>(contract: T) => {};
+// const createEController = <T extends EndpointDef>(contract: T) => {};
 
-createEController(a);
+// createEController(a);
 
 // const b: Response<"archives_archiveId_PATCH">[200] = {
 //   status: "string",

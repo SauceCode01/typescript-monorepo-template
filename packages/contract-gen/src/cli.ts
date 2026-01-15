@@ -83,7 +83,7 @@ async function generate() {
         // FILE NAME
         const endpoint_signature = [...pathStack, endpointMethod]
           .join("_")
-          .replace(/\[|\]/g, "");
+          .replace(/\[|\]/g, "") ;
 
         let request: any = {};
         let response: any = {};
@@ -101,7 +101,9 @@ async function generate() {
           `__CODE_START__z.object({${pathParams.map((p) => `${p}: z.string()`).join(",")}})__CODE_END__`;
 
         // CHECK FILE EXPORTS
+        console.log("Checking file exports:", actualFilePath);
         const exports = await listExportsAsync(actualFilePath);
+        console.log("Exports:", exports);
         for (const exportedVariable of exports) {
           if (exportedVariable === "response") {
             const schemaImportName = `${endpoint_signature}_response`;
