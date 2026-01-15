@@ -1,8 +1,8 @@
-import { Models } from "@packages/api-contracts";
 import {
   ArticleRepository,
   articleRepositoryInstance,
 } from "./article.repository.js";
+import { Article, ArticleInsertDTO, ArticleUpdateDTO } from "./article.type.js";
 
 export class ArticleService {
   constructor(
@@ -13,17 +13,17 @@ export class ArticleService {
     return this.articleRepository.list(pageNumber, pageSize);
   };
 
-  public create = (data: Models.articleSystem.article.insertDTO) => {
+  public create = (data: ArticleInsertDTO) => {
     return this.articleRepository.create(data);
   };
 
-  public getById = (id: string) => {
+  public getById = (id: string)     => {
     return this.articleRepository.getById(id);
   };
 
   public updateById = (
     id: string,
-    data: Models.articleSystem.article.updateDTO
+    data: ArticleUpdateDTO
   ) => {
     return this.articleRepository.updateById(id, data);
   };

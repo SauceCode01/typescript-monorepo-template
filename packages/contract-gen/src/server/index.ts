@@ -1,61 +1,16 @@
-import { Request, RequestHandler as importRequestHandler, Response } from "express";
-import { ZodType, ZodError } from "zod";
-import { EndpointDef } from "#types/contract.types.js";
+import z, { ZodType, ZodError } from "zod";
 import {
+  ContractError,
+  EndpointDef,
+  inferContext,
   InferHandlerResult,
-  InferRequestInput,
-  ResponseSchemaOf,
-} from "#types/enforcer.type.js";
-
-export type RequestHandler = importRequestHandler;
-
-// --- Custom Errors ---
-
-/**
- * Thrown when the INCOMING request (body, query, params) fails validation.
- * BLAME: The Caller (Client)
- * ACTION: Return 400 Bad Request
- */
-export class ClientRequestValidationError extends Error {
-  constructor(public error: ZodError) {
-    super("Request validation failed");
-    this.name = "ClientRequestValidationError";
-  }
-}
-
-/**
- * Thrown when the OUTGOING response fails validation against the contract.
- * BLAME: The Implementer (Server Dev)
- * ACTION: Return 500 Internal Server Error (and log immediately)
- */
-export class ServerResponseValidationError extends Error {
-  constructor(public error: ZodError) {
-    super("Server response validation failed (Contract Violation)");
-    this.name = "ServerResponseValidationError";
-  }
-}
+  inferOutputFunction,
+  inferRequest,
+  inferResponse,
+  RequestHandler,
+} from "#types/contract.types.js";
 
 // --- Controller Factory ---
-
-/**
- * EXAMPLE USAGE:
-   getUserById: RequestHandler = createExpressController(
-    Contract.userSystem.users.user.get, // pass the contract schema here
-    async ({ input, output, ctx }) => {
-      const userId = input.params.userId; // safely typed input object
-      const { data, error } = await this.userService.getUserById(userId);
-      if (error) {
-        throw new ServerError(400, "Bad Request", error.message);
-      }
-      return output(200, {
-        status: "success",
-        message: "User fetched successfully",
-        data,
-      });
-    }
-  );
- */
- 
 export const createExpressController = <T extends EndpointDef>(
   schema: T,
   handler: ({
@@ -63,12 +18,9 @@ export const createExpressController = <T extends EndpointDef>(
     ctx,
     output,
   }: {
-    input: InferRequestInput<T>;
-    ctx: { req: Request; res: Response };
-    output: <S extends keyof T["response"]>(
-      status: S,
-      body: ResponseSchemaOf<T, S>
-    ) => { status: S; body: ResponseSchemaOf<T, S> };
+    input: inferRequest<T>;
+    ctx: inferContext<T>;
+    output: inferOutputFunction<T>;
   }) => Promise<InferHandlerResult<T>>
 ): RequestHandler => {
   return async (req, res, next) => {
@@ -94,7 +46,12 @@ export const createExpressController = <T extends EndpointDef>(
         }
       } catch (err) {
         if (err instanceof ZodError) {
-          throw new ClientRequestValidationError(err);
+          throw new ContractError(err, "client");
+        }
+        if (err instanceof ContractError) {
+          throw new Error(
+            "[@packages/contract-gen:src/server/index.ts/createExpressController] an unknown error occured while validating request."
+          );
         }
         throw err; // Rethrow unknown errors
       }
@@ -104,7 +61,7 @@ export const createExpressController = <T extends EndpointDef>(
       // -------------------------------------------------
       const output = <S extends keyof T["response"]>(
         status: S,
-        body: ResponseSchemaOf<T, S>
+        body: inferResponse<T>[S]
       ) => {
         return { status, body };
       };
@@ -113,7 +70,7 @@ export const createExpressController = <T extends EndpointDef>(
       // 3. EXECUTE HANDLER
       // -------------------------------------------------
       const result = await handler({
-        input: input as InferRequestInput<T>,
+        input: input as inferRequest<T>,
         ctx: { req, res },
         output,
       });
@@ -131,7 +88,7 @@ export const createExpressController = <T extends EndpointDef>(
           await responseValidator.parseAsync(result.body);
         } catch (err) {
           if (err instanceof ZodError) {
-            throw new ServerResponseValidationError(err);
+            throw new ContractError(err, "server");
           }
           throw err;
         }

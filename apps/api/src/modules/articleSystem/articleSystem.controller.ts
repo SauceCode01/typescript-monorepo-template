@@ -1,6 +1,6 @@
-import { createExpressController } from "@packages/api-typing";
+import { createExpressController } from "@packages/contract-gen";
 import { ArticleService, articleServiceInstance } from "./article.service.js";
-import { Contract } from "@packages/api-contracts"; 
+import { contract } from "@packages/api-contracts";
 
 export class ArticleController {
   constructor(
@@ -8,7 +8,7 @@ export class ArticleController {
   ) {}
 
   public list = createExpressController(
-    Contract.articleSystem.articles.get,
+    contract.api.article_system.articles.GET,
     async ({ input, output, ctx }) => {
       const articles = await this.articleService.list(
         input.query.page.number,
@@ -29,7 +29,7 @@ export class ArticleController {
   );
 
   public create = createExpressController(
-    Contract.articleSystem.articles.post,
+    contract.api.article_system.articles.POST,
     async ({ input, output, ctx }) => {
       const newArticle = await this.articleService.create(input.body.data);
       return output(200, {
@@ -41,7 +41,7 @@ export class ArticleController {
   );
 
   public update = createExpressController(
-    Contract.articleSystem.articles.article.patch,
+    contract.api.article_system.articles.articleId.PATCH,
     async ({ input, output, ctx }) => {
       const updatedArticle = await this.articleService.updateById(
         input.params.articleId,
@@ -56,7 +56,7 @@ export class ArticleController {
   );
 
   public delete = createExpressController(
-    Contract.articleSystem.articles.article.delete,
+    contract.api.article_system.articles.articleId.DELETE,
     async ({ input, output, ctx }) => {
       await this.articleService.deleteById(input.params.articleId);
       return output(200, {
@@ -67,7 +67,7 @@ export class ArticleController {
   );
 
   public getOne = createExpressController(
-    Contract.articleSystem.articles.article.get,
+    contract.api.article_system.articles.articleId.GET,
     async ({ input, output, ctx }) => {
       const article = await this.articleService.getById(input.params.articleId);
       return output(200, {
