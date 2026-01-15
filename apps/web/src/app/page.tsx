@@ -1,9 +1,9 @@
 "use client";
 
-import { configs } from "@/configs/servers.config";
-import { callEndpoint } from "@packages/api-typing";
-import { Contract, ContractTypes } from "@packages/api-contracts";
+import { configs } from "@/configs/servers.config";  
+import {  contract, Responses, ResponseTypes } from "@packages/api-contracts";
 import React from "react";
+import { callEndpoint } from "@packages/contract-gen";
 
 const HomePage = () => {
   return (
@@ -20,8 +20,9 @@ const HomePage = () => {
 
 const ApiHealthCheckCard = () => {
   const [res, setRes] = React.useState<
-    ContractTypes["health"]["get"]["response"][200] | null
+    Responses<"api_health_GET">[200] | null
   >(null);
+ 
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
 
@@ -32,13 +33,11 @@ const ApiHealthCheckCard = () => {
 
       const result = await callEndpoint(
         configs.apiBaseUrl,
-        Contract.health.get,
-        {}
-      );
+        contract.api.health.GET,
+        {
 
-      // await Promise.resolve(
-      //   new Promise((resolve) => setTimeout(resolve, 1000))
-      // );
+        }
+      ); 
 
       if (result.status === 200) {
         setRes(result.body);

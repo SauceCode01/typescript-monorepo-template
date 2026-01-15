@@ -1,14 +1,14 @@
-import {  Models } from "@packages/api-contracts";
+import { Article, ArticleInsertDTO, ArticleUpdateDTO } from "./article.type";
 
 export class ArticleRepository {
-  public list = (
+  public list = async (
     pageNumber: number,
     pageSize: number
-  ): Promise<Models.articleSystem.article.row[]> => {
+  ): Promise<Article[]> => {
     const action = async () => {
       return Array.from({ length: pageSize }, (_, i) => ({
         id: `${i}`,
-        title: `title ${i}`,
+        title: `title ${pageNumber} ${pageSize} ${i}`,
         description: `description ${i}`,
         content: `content ${i}`,
       }));
@@ -16,9 +16,7 @@ export class ArticleRepository {
     return action();
   };
 
-  public create = (
-    data: Models.articleSystem.article.insertDTO
-  ): Promise<Models.articleSystem.article.row> => {
+  public create = (data: ArticleInsertDTO): Promise<Article> => {
     const action = async () => {
       return {
         id: "1",
@@ -28,7 +26,7 @@ export class ArticleRepository {
     return action();
   };
 
-  public getById = (id: string): Promise<Models.articleSystem.article.row> => {
+  public getById = (id: string): Promise<Article> => {
     const action = async () => {
       return {
         id: id,
@@ -42,8 +40,8 @@ export class ArticleRepository {
 
   public updateById = (
     id: string,
-    data: Models.articleSystem.article.updateDTO
-  ): Promise<Models.articleSystem.article.row> => {
+    data: ArticleUpdateDTO
+  ): Promise<Article> => {
     const action = async () => {
       return {
         id: id,

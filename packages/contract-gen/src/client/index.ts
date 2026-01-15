@@ -1,8 +1,8 @@
-import { EndpointDef } from "#types/contract.types.js";
 import {
-  InferRequestInput,
+  EndpointDef,
   InferHandlerResult,
-} from "#types/enforcer.type.js";
+  inferRequest,
+} from "#types/contract.types.js";
 
 // Helper: Extra options like Auth
 type FetchOptions = Omit<RequestInit, "body" | "method"> & {
@@ -11,23 +11,10 @@ type FetchOptions = Omit<RequestInit, "body" | "method"> & {
 
 // Helper: Combine Zod Inputs + Fetch Options
 // We use a conditional type here: if InferRequestInput<T> is empty, we don't force it.
-type ClientArgs<T extends EndpointDef> =
-  keyof InferRequestInput<T> extends never
-    ? FetchOptions
-    : InferRequestInput<T> & FetchOptions;
+type ClientArgs<T extends EndpointDef> = keyof inferRequest<T> extends never
+  ? FetchOptions
+  : inferRequest<T> & FetchOptions;
 
-/**
- * USAGE
-    const result = await callEndpoint(
-        configs.nexusApiBaseUrl,
-        Contract.health.get,
-        {}
-      );
-
-      if (result.status === 200) {
-        result; // fully types using status 200
-      }
- */
 export const callEndpoint = async <T extends EndpointDef>(
   baseUrl: string,
   endpoint: T,
@@ -41,12 +28,12 @@ export const callEndpoint = async <T extends EndpointDef>(
   // CRITICAL: The 'path' property is injected by 'createContract'.
   // If you pass a raw object from 'createEndpoint', this will be missing.
   // Use the 'Contract' object exported from your routes file.
-  let urlPath = (endpoint as any).path as string;
+  let urlPath = endpoint.metadata.path;
 
   if (!urlPath) {
     // Fallback: If path isn't injected, try to find it (rare case) or throw
     throw new Error(
-      `Endpoint path is missing for method ${endpoint.method}. Ensure you are using the 'Contract' object, not the raw route definition.`
+      `Endpoint path is missing for method ${endpoint.metadata.signature}. Ensure you are using the 'Contract' object, not the raw route definition.`
     );
   }
 
@@ -54,15 +41,8 @@ export const callEndpoint = async <T extends EndpointDef>(
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       // We encode URI component to handle special characters in IDs
-      urlPath = urlPath.replace(`:${key}`, encodeURIComponent(String(value)));
+      urlPath = urlPath.replace(`[${key}]`, encodeURIComponent(String(value)));
     });
-  }
-
-  // Check for missing params (optional safety check)
-  if (urlPath.includes(":")) {
-    console.warn(
-      `[ApiClient] Warning: URL ${urlPath} still contains ':' placeholders. Missing params?`
-    );
   }
 
   // 4. Construct Query String
@@ -96,7 +76,7 @@ export const callEndpoint = async <T extends EndpointDef>(
   // 6. Execute Request
   try {
     const response = await fetch(url.toString(), {
-      method: endpoint.method,
+      method: endpoint.metadata.method,
       headers: requestHeaders,
       body: body ? JSON.stringify(body) : undefined,
       ...customConfig,
