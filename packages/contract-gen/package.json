@@ -1,17 +1,25 @@
 {
-  "name": "@packages/contract-gen", 
+  "name": "@packages/contract-gen",
   "bin": {
     "contract-gen": "./src/cli.ts"
+  },
+  "exports": {
+    ".": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc"
   },
+  "imports": {
+    "#*": "./dist/*"
+  },
   "dependencies": {
-    "commander": "^11.0.0", 
     "@configs/typescript-config": "workspace:*",
-    "zod": "^3.0.0" 
+    "commander": "^11.0.0",
+    "express": "^5.2.1",
+    "zod": "^3.0.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^20.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"

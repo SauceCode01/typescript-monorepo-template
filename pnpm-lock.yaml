@@ -29,6 +29,9 @@ importers:
       '@packages/api-typing':
         specifier: workspace:*
         version: link:../../packages/api-typing
+      '@packages/contract-gen':
+        specifier: workspace:^
+        version: link:../../packages/contract-gen
       '@packages/rest-contracts':
         specifier: workspace:*
         version: link:../../packages/rest-contracts
@@ -317,10 +320,16 @@ importers:
       commander:
         specifier: ^11.0.0
         version: 11.1.0
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       zod:
         specifier: ^3.0.0
         version: 3.25.76
     devDependencies:
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.29

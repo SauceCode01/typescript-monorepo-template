@@ -6,10 +6,11 @@
     "start": "node --env-file=.env dist/index.js"
   },
   "dependencies": {
-    "@packages/rest-contracts": "workspace:*",
     "@configs/typescript-config": "workspace:*",
     "@packages/api-contracts": "workspace:*",
     "@packages/api-typing": "workspace:*",
+    "@packages/contract-gen": "workspace:^",
+    "@packages/rest-contracts": "workspace:*",
     "@supabase/supabase-js": "^2.86.0",
     "@types/express-serve-static-core": "^5.1.1",
     "concurrently": "^9.2.1",
