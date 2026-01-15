@@ -3,27 +3,22 @@
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
-import { checkExport, checkExportSync, listExportsAsync } from "./utils/utils";
+import chokidar from "chokidar";
+import { listExportsSync } from "./utils/utils";
 import z from "zod";
+import { scanModels } from "#utils/models.utils.js";
 
 const program = new Command();
-
 program
   .name("contract-gen")
   .description(
     "Generates a single Zod contract object from a file-based API structure"
   )
-  // .requiredOption(
-  //   "-i, --input <path>",
-  //   "Input directory containing route files"
-  // )
-  // .requiredOption(
-  //   "-o, --output <path>",
-  //   "Output file path (e.g., src/index.ts)"
-  // )
+  .option("-w, --watch", "Watch for file changes and regenerate") // <--- 2. ADD THIS FLAG
   .parse(process.argv);
 
 const options = program.opts();
+const MODEL_DIR = path.resolve(process.cwd(), "./src/models");
 const SRC_DIR = path.resolve(process.cwd(), "./src/routes");
 const OUTPUT_FILE = path.resolve(process.cwd(), "./src/contract.ts");
 
@@ -54,9 +49,9 @@ async function generate() {
     route_tree: any,
     pathStack: string[]
   ) {
-    console.log("Reading directory:", currentDirectory);
     // Read all files and folders in the current directory
     const dirItems = fs.readdirSync(currentDirectory);
+    console.log("processing dir:", currentDirectory);
 
     for (const dirItem of dirItems) {
       const fullPath = path.join(currentDirectory, dirItem);
@@ -64,10 +59,12 @@ async function generate() {
 
       if (pathStats.isDirectory()) {
         // FOLDER NAME
-        route_tree[dirItem.replace(/\[|\]/g, "")] = route_tree[dirItem] || {};
+        
+        const route_key = dirItem.replace(/\[|\]/g, "").replace(/-/g, "_")
+        route_tree[route_key.replace(/\[|\]/g, "")] = route_tree[route_key] || {};
         await iterateDirectory(
           fullPath,
-          route_tree[dirItem.replace(/\[|\]/g, "")],
+          route_tree[route_key.replace(/\[|\]/g, "")],
           [...pathStack, dirItem]
         );
       } else if (dirItem.endsWith(".ts")) {
@@ -83,7 +80,9 @@ async function generate() {
         // FILE NAME
         const endpoint_signature = [...pathStack, endpointMethod]
           .join("_")
-          .replace(/\[|\]/g, "") ;
+          .replace(/\[|\]/g, "")
+          .replace(/\./g, "_")
+          .replace(/-/g, "_");
 
         let request: any = {};
         let response: any = {};
@@ -97,13 +96,15 @@ async function generate() {
         const pathParams = pathStack
           .filter(segmentIsPathParameter)
           .map((p) => p.slice(1, -1));
-        request["params"] =
-          `__CODE_START__z.object({${pathParams.map((p) => `${p}: z.string()`).join(",")}})__CODE_END__`;
+        if (pathParams.length > 0) {
+          request["params"] =
+            `__CODE_START__z.object({${pathParams.map((p) => `${p}: z.string()`).join(",")}})__CODE_END__`;
+        }
 
         // CHECK FILE EXPORTS
-        console.log("Checking file exports:", actualFilePath);
-        const exports = await listExportsAsync(actualFilePath);
-        console.log("Exports:", exports);
+        console.log("checking file exports:", actualFilePath);
+        const exports = listExportsSync(actualFilePath);
+        console.log("found exports:", exports);
         for (const exportedVariable of exports) {
           if (exportedVariable === "response") {
             const schemaImportName = `${endpoint_signature}_response`;
@@ -134,7 +135,9 @@ async function generate() {
         };
 
         // Also add to route tree
-        route_tree[endpointMethod] = {
+        const route_key = endpointMethod.replace(/\[|\]/g, "").replace(/-/g, "_")
+        console.log("inserting rotue key" , endpointMethod, "as", route_key);
+        route_tree[route_key] = {
           request: request,
           response: response,
           metadata: metadata,
@@ -144,7 +147,6 @@ async function generate() {
         requestTypes.push(
           `${endpoint_signature} : { [K in keyof typeof EndpointSchemas[ ${'"' + endpoint_signature + '"'} ][${'"' + "request" + '"'}]]: z.infer<typeof EndpointSchemas[ ${'"' + endpoint_signature + '"'} ][${'"' + "request" + '"'}][K]> }`
         );
- 
 
         responseTypes.push(
           `${endpoint_signature} : { [K in keyof typeof ${endpoint_signature}_response]: z.infer<typeof ${endpoint_signature}_response[K]> }`
@@ -162,7 +164,21 @@ async function generate() {
     }
   }
 
+  console.log("iterating source dir:", SRC_DIR);
   await iterateDirectory(SRC_DIR, route_tree, []);
+
+  console.log("scanning models dir:", MODEL_DIR);
+  const models_res = await scanModels(MODEL_DIR);
+  imports.push(
+    ...models_res.imports.map(
+      (i) => `import { ${i.name} as ${i.alias} } from "${i.path}";`
+    )
+  );
+  const modelTreeString = JSON.stringify(models_res.modelTree, null, 2).replace(
+    /"__CODE_START__(.*?)__CODE_END__"/g,
+    "$1"
+  );
+  console.log("models_res:", models_res);
 
   // Serialize the map to a string, but preserve the variable names
   let jsonString = JSON.stringify(endpoints, null, 2);
@@ -186,7 +202,9 @@ ${imports.join("\n")}
 
 export const EndpointSchemas = ${jsonString}
 
-export const RouteTree = ${route_tree_string}
+export const contract = ${route_tree_string}
+
+export const models = ${modelTreeString}
 
 export type ResponseTypes = {
   ${responseTypes.join(",\n  ")}
@@ -200,107 +218,61 @@ export type EndpointTypes = {
   ${endpointTypes.join(",\n  ")}
 }
   
-export type Response<T extends keyof ResponseTypes> = ResponseTypes[T];
-export type Request<T extends keyof RequestTypes> = RequestTypes[T];
-export type Endpoint<T extends keyof EndpointTypes> = EndpointTypes[T];
+export type Responses<T extends keyof ResponseTypes> = ResponseTypes[T];
+export type Requests<T extends keyof RequestTypes> = RequestTypes[T];
+export type Endpoints<T extends keyof EndpointTypes> = EndpointTypes[T];
 
 `;
 
   fs.writeFileSync(OUTPUT_FILE, fileContent);
-  console.log("✅ API Contract generated at src/indexxx.ts");
+  console.log("✅ API Contract generated at src/contract.ts");
 }
 
-generate().catch((err) => {
-  console.error("❌ Generation failed:", err);
-  process.exit(1);
-});
+function debounce(func: Function, wait: number) {
+  let timeout: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+async function run() {
+  try {
+    // Always run once immediately
+    console.clear();
+    await generate();
 
-// export interface AllTypes {
-//   ${types.join(",\n  ")}
-// }
-// export type Type<T extends keyof AllTypes > =
-//   AllTypes[T] ;
+    if (options.watch) {
+      console.log("\n👀 Watching for changes in routes and models...");
 
-// function generate() {
-//   if (!fs.existsSync(SRC_DIR)) {
-//     console.error(`❌ Input directory not found: ${SRC_DIR}`);
-//     process.exit(1);
-//   }
+      const debouncedGenerate = debounce(async () => {
+        console.log("\n🔄 Change detected. Regenerating...");
+        try {
+          await generate();
+        } catch (err) {
+          console.error("❌ Generation failed during watch:", err);
+        }
+      }, 200);
 
-//   const imports: string[] = [];
-//   const structure: any = {};
+      // Watch both Routes and Models directories
+      const watcher = chokidar.watch([SRC_DIR, MODEL_DIR], {
+        ignored: /(^|[\/\\])\../, // ignore dotfiles
+        persistent: true,
+        ignoreInitial: true,
+      });
 
-//   function walk(currentDir: string, currentMap: any, pathStack: string[]) {
-//     const items = fs.readdirSync(currentDir);
+      watcher
+        .on("add", debouncedGenerate)
+        .on("change", debouncedGenerate)
+        .on("unlink", debouncedGenerate);
 
-//     for (const item of items) {
-//       const fullPath = path.join(currentDir, item);
-//       const stat = fs.statSync(fullPath);
+      // Keep process alive
+    } else {
+      process.exit(0);
+    }
+  } catch (err) {
+    console.error("❌ Generation failed:", err);
+    process.exit(1);
+  }
+}
 
-//       if (stat.isDirectory()) {
-//         const key = isParam(item) ? `sw_param_${item.slice(1, -1)}` : item;
-//         currentMap[key] = currentMap[key] || {};
-
-//         if (isParam(item)) {
-//           currentMap[key]["__paramName"] = item.slice(1, -1);
-//         }
-
-//         walk(fullPath, currentMap[key], [...pathStack, item]);
-//       } else if (item.endsWith(".ts") || item.endsWith(".tsx")) {
-//         const method = item.replace(/\.tsx?$/, ""); // GET, POST
-
-//         // 1. Generate unique variable name for import
-//         const safePath = pathStack.map(s => s.replace(/\[|\]/g, '')).join('_');
-//         const importName = `route_${safePath}_${method}`;
-
-//         // 2. Calculate relative path from OUTPUT_FILE location to the ROUTE file
-//         const outputDir = path.dirname(OUTPUT_FILE);
-//         let relativePath = path.relative(outputDir, fullPath);
-
-//         // --- FIX STARTS HERE ---
-//         // Normalize path separators to forward slashes (/) for imports
-//         // This handles Windows paths (e.g., ..\api\file) correctly
-//         relativePath = relativePath.split(path.sep).join("/");
-//         // --- FIX ENDS HERE ---
-
-//         // Ensure relative path starts with "./" or "../"
-//         if (!relativePath.startsWith(".")) {
-//           relativePath = "./" + relativePath;
-//         }
-
-//         // Remove extension for import
-//         relativePath = relativePath.replace(/\.tsx?$/, "");
-
-//         imports.push(`import * as ${importName} from "${relativePath}";`);
-
-//         const pathParams = pathStack.filter(isParam).map((p) => p.slice(1, -1));
-
-//         currentMap[method] = `__CODE_START__${importName}__CODE_END__`;
-//         currentMap[`${method}_params`] = pathParams;
-//       }
-//     }
-//   }
-
-//   walk(SRC_DIR, structure, []);
-
-//   // Serialize and unwrap
-//   let jsonString = JSON.stringify(structure, null, 2);
-//   jsonString = jsonString.replace(/"__CODE_START__(.*?)__CODE_END__"/g, "$1");
-
-//   const fileContent = `
-// // --------------------------------------------------------------------------
-// // ⚠️ THIS FILE IS AUTO-GENERATED BY @repo/contract-gen. DO NOT EDIT.
-// // --------------------------------------------------------------------------
-// import { z } from 'zod';
-
-// ${imports.join("\n")}
-
-// export const contract = ${jsonString} as const;
-// `;
-
-//   // Ensure output dir exists
-//   fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
-//   fs.writeFileSync(OUTPUT_FILE, fileContent);
-
-//   console.log(`✅ Contract generated at: ${options.output}`);
-// }
+run();

@@ -1,4 +1,4 @@
-import { z, ZodType } from "zod";
+import { z, ZodError, ZodType } from "zod";
 import {
   Request,
   RequestHandler as importRequestHandler,
@@ -33,10 +33,13 @@ export type RequestHandler = importRequestHandler;
 // --- Custom Errors ---
 
 export class ContractError extends Error {
-  public blame: "Client" | "Server";
-  constructor(message: string, blame: "Client" | "Server") {
-    super(message);
-    this.name = "ContractError";
+  public blame: "client" | "server";
+  constructor(
+    public error: ZodError,
+    blame: "client" | "server"
+  ) {
+    super("Request validation failed");
+    this.name = "Contract validation error";
     this.blame = blame;
   }
 }

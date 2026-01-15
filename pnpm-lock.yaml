@@ -26,12 +26,12 @@ importers:
       '@configs/typescript-config':
         specifier: workspace:*
         version: link:../../configs/typescript-config
-      '@packages/contract-gen':
-        specifier: workspace:^
-        version: link:../../packages/contract-gen
-      '@packages/rest-contracts':
+      '@packages/api-contracts':
         specifier: workspace:*
-        version: link:../../packages/rest-contracts
+        version: link:../../packages/api-contracts
+      '@packages/contract-gen':
+        specifier: workspace:*
+        version: link:../../packages/contract-gen
       '@supabase/supabase-js':
         specifier: 2.90.1
         version: 2.90.1
@@ -153,6 +153,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@packages/api-contracts':
+        specifier: workspace:*
+        version: link:../../packages/api-contracts
+      '@packages/contract-gen':
+        specifier: workspace:*
+        version: link:../../packages/contract-gen
       '@supabase/supabase-js':
         specifier: 2.90.1
         version: 2.90.1
@@ -232,11 +238,60 @@ importers:
 
   configs/typescript-config: {}
 
+  packages/api-contracts:
+    dependencies:
+      '@configs/typescript-config':
+        specifier: workspace:*
+        version: link:../../configs/typescript-config
+      '@packages/contract-gen':
+        specifier: workspace:^
+        version: link:../contract-gen
+      concurrently:
+        specifier: 9.2.1
+        version: 9.2.1
+      express:
+        specifier: 5.2.1
+        version: 5.2.1
+      zod:
+        specifier: 4.3.2
+        version: 4.3.2
+    devDependencies:
+      '@types/chokidar':
+        specifier: ^2.1.7
+        version: 2.1.7
+      '@types/express':
+        specifier: 5.0.6
+        version: 5.0.6
+      '@types/node':
+        specifier: 25.0.3
+        version: 25.0.3
+      chokidar:
+        specifier: ^5.0.0
+        version: 5.0.0
+      supabase:
+        specifier: 2.70.5
+        version: 2.70.5
+      ts-node:
+        specifier: 10.9.2
+        version: 10.9.2(@types/node@25.0.3)(typescript@5.9.3)
+      tsc-alias:
+        specifier: 1.8.16
+        version: 1.8.16
+      tsx:
+        specifier: 4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
   packages/contract-gen:
     dependencies:
       '@configs/typescript-config':
         specifier: workspace:*
         version: link:../../configs/typescript-config
+      chokidar:
+        specifier: ^5.0.0
+        version: 5.0.0
       commander:
         specifier: 11.0.0
         version: 11.0.0
@@ -253,43 +308,6 @@ importers:
       '@types/node':
         specifier: 25.0.3
         version: 25.0.3
-      tsx:
-        specifier: 4.21.0
-        version: 4.21.0
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
-
-  packages/rest-contracts:
-    dependencies:
-      '@configs/typescript-config':
-        specifier: workspace:*
-        version: link:../../configs/typescript-config
-      '@packages/contract-gen':
-        specifier: workspace:^
-        version: link:../contract-gen
-      express:
-        specifier: 5.2.1
-        version: 5.2.1
-      zod:
-        specifier: 4.3.2
-        version: 4.3.2
-    devDependencies:
-      '@types/express':
-        specifier: 5.0.6
-        version: 5.0.6
-      '@types/node':
-        specifier: 25.0.3
-        version: 25.0.3
-      supabase:
-        specifier: 2.70.5
-        version: 2.70.5
-      ts-node:
-        specifier: 10.9.2
-        version: 10.9.2(@types/node@25.0.3)(typescript@5.9.3)
-      tsc-alias:
-        specifier: 1.8.16
-        version: 1.8.16
       tsx:
         specifier: 4.21.0
         version: 4.21.0
@@ -1585,6 +1603,10 @@ packages:
   '@types/caseless@0.12.5':
     resolution: {integrity: sha512-hWtVTC2q7hc7xZ/RLbxapMvDMgUnDvKvMOpKal4DrMyfGBUfB1oKaZlIRr6mJL+If3bAP6sV/QneGzF6tJjZDg==}
 
+  '@types/chokidar@2.1.7':
+    resolution: {integrity: sha512-A7/MFHf6KF7peCzjEC1BBTF8jpmZTokb3vr/A0NxRGfwRLK3Ws+Hq6ugVn6cJIMfM6wkCak/aplWrxbTcu8oig==}
+    deprecated: This is a stub types definition. chokidar provides its own type definitions, so you do not need this installed.
+
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
@@ -2231,6 +2253,10 @@ packages:
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
+
+  chokidar@5.0.0:
+    resolution: {integrity: sha512-TQMmc3w+5AxjpL8iIiwebF73dRDF4fBIieAqGn9RGCWaEVwQ6Fb2cGe31Yns0RRIzii5goJ1Y7xbMwo1TxMplw==}
+    engines: {node: '>= 20.19.0'}
 
   chownr@3.0.0:
     resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
@@ -4387,6 +4413,10 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
+  readdirp@5.0.0:
+    resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
+    engines: {node: '>= 20.19.0'}
+
   real-require@0.2.0:
     resolution: {integrity: sha512-57frrGM/OCTLqLOAh0mhVA9VBMHd+9U7Zb2THMGdBUoZVOtGbJzjxsYGDJ3A9AYYCP4hn6y1TVbaOfzWtm5GFg==}
     engines: {node: '>= 12.13.0'}
@@ -6533,6 +6563,10 @@ snapshots:
   '@types/caseless@0.12.5':
     optional: true
 
+  '@types/chokidar@2.1.7':
+    dependencies:
+      chokidar: 5.0.0
+
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 25.0.3
@@ -7289,6 +7323,10 @@ snapshots:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  chokidar@5.0.0:
+    dependencies:
+      readdirp: 5.0.0
 
   chownr@3.0.0: {}
 
@@ -9862,6 +9900,8 @@ snapshots:
   readdirp@3.6.0:
     dependencies:
       picomatch: 2.3.1
+
+  readdirp@5.0.0: {}
 
   real-require@0.2.0: {}
 

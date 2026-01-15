@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import ts from "typescript"; 
 
 export async function checkExport(filePath: string, exportName: string) {
   try {
@@ -32,17 +33,6 @@ export function checkExportSync(filePath: string, exportName: string): boolean {
   return regex.test(content);
 }
 
- 
-
-// export async function listExportsAsync(filePath: string) {
-//   const absolutePath = path.resolve(filePath);
-//   const module = await import(absolutePath);
-  
-//   // module is an object where keys are the export names
-//   return Object.keys(module); 
-// }
-
-// // Example result: ["query", "body", "response", "UserSchema"]
 
 // import path from 'path';
 import { pathToFileURL } from 'url'; // Built-in Node utility
@@ -63,4 +53,53 @@ export async function listExportsAsync(filePath: string) {
     console.error(`Error loading file ${filePath}:`, e);
     return [];
   }
+}
+
+
+export function listExportsSync(filePath: string): string[] {
+  const content = fs.readFileSync(filePath, "utf-8");
+  
+  // Parse the file into an AST (Abstract Syntax Tree)
+  const sourceFile = ts.createSourceFile(
+    filePath,
+    content,
+    ts.ScriptTarget.Latest,
+    true
+  );
+
+  const exportNames: string[] = [];
+
+  // Helper to check if a node has the 'export' modifier
+  const isExported = (node: ts.Node): boolean => {
+    return ts.canHaveModifiers(node) && 
+           ts.getModifiers(node)?.some(m => m.kind === ts.SyntaxKind.ExportKeyword) || false;
+  };
+
+  // Walk through the top-level statements
+  sourceFile.forEachChild(node => {
+    // 1. Named exports: export const x, export function y, export class z
+    if (isExported(node)) {
+      if (ts.isVariableStatement(node)) {
+        node.declarationList.declarations.forEach(decl => {
+          if (ts.isIdentifier(decl.name)) {
+            exportNames.push(decl.name.text);
+          }
+        });
+      } else if (
+        (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node) || ts.isModuleDeclaration(node)) &&
+        node.name
+      ) {
+        exportNames.push(node.name.text);
+      }
+    }
+
+    // 2. Export declarations: export { a, b as c }
+    if (ts.isExportDeclaration(node) && node.exportClause && ts.isNamedExports(node.exportClause)) {
+      node.exportClause.elements.forEach(element => {
+        exportNames.push(element.name.text);
+      });
+    }
+  });
+
+  return [...new Set(exportNames)]; // Remove duplicates
 }

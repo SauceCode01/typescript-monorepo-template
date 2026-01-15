@@ -1,5 +1,5 @@
 {
-  "name": "@packages/rest-contracts",
+  "name": "@packages/api-contracts",
   "exports": {
     ".": "./dist/contract.js"
   },
@@ -7,19 +7,21 @@
     "#*": "./dist/*"
   },
   "scripts": {
-    "dev": "tsc --watch ",
-    "generate": "contract-gen",
-    "build": "npm run generate && tsc"
+    "dev": "concurrently \"contract-gen --watch\" \"tsc --watch\"",
+    "build": "contract-gen && tsc"
   },
   "dependencies": {
-    "@packages/contract-gen": "workspace:^", 
     "@configs/typescript-config": "workspace:*",
+    "@packages/contract-gen": "workspace:^",
+    "concurrently": "9.2.1",
     "express": "5.2.1",
     "zod": "4.3.2"
   },
   "devDependencies": {
+    "@types/chokidar": "^2.1.7",
     "@types/express": "5.0.6",
     "@types/node": "25.0.3",
+    "chokidar": "^5.0.0",
     "supabase": "2.70.5",
     "ts-node": "10.9.2",
     "tsc-alias": "1.8.16",

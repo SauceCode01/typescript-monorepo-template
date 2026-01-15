@@ -1,7 +1,14 @@
-
 import z, { ZodType, ZodError } from "zod";
-import { ContractError, EndpointDef, inferContext, InferHandlerResult, inferOutputFunction, inferRequest, inferResponse, RequestHandler } from "#types/contract.types.js";
-
+import {
+  ContractError,
+  EndpointDef,
+  inferContext,
+  InferHandlerResult,
+  inferOutputFunction,
+  inferRequest,
+  inferResponse,
+  RequestHandler,
+} from "#types/contract.types.js";
 
 // --- Controller Factory ---
 export const createExpressController = <T extends EndpointDef>(
@@ -39,10 +46,12 @@ export const createExpressController = <T extends EndpointDef>(
         }
       } catch (err) {
         if (err instanceof ZodError) {
-          throw new ContractError(err.message, "Client");
+          throw new ContractError(err, "client");
         }
         if (err instanceof ContractError) {
-          throw new ContractError(err.message, "Client");
+          throw new Error(
+            "[@packages/contract-gen:src/server/index.ts/createExpressController] an unknown error occured while validating request."
+          );
         }
         throw err; // Rethrow unknown errors
       }
@@ -79,7 +88,7 @@ export const createExpressController = <T extends EndpointDef>(
           await responseValidator.parseAsync(result.body);
         } catch (err) {
           if (err instanceof ZodError) {
-            throw new ContractError(err.message, "Server");
+            throw new ContractError(err, "server");
           }
           throw err;
         }

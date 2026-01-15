@@ -1,11 +1,12 @@
-import { ArticleModels } from "#models/article.model.js";
+import {  articleRow } from "#models/article.js";
 import { SchemaFactory } from "#utils/schemaFactory.utils.js";
 import { z } from "zod";
+
 export const params = z.object({
   articleId: z.string(),
 });
 
 export const response = {
-  200: SchemaFactory.Response.empty(),
+  200: SchemaFactory.Response.single(articleRow),
   ...SchemaFactory.Response.standardErrors(),
 };

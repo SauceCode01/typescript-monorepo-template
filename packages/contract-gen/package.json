@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@configs/typescript-config": "workspace:*",
+    "chokidar": "^5.0.0",
     "commander": "11.0.0",
     "express": "5.2.1",
     "zod": "4.3.2"
