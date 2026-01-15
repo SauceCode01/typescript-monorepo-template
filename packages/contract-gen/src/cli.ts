@@ -7,6 +7,7 @@ import chokidar from "chokidar";
 import { listExportsSync } from "./utils/utils";
 import z from "zod";
 import { scanModels } from "#utils/models.utils.js";
+import { logger } from "#utils/logging.utils.js";
 
 const program = new Command();
 program
@@ -51,7 +52,6 @@ async function generate() {
   ) {
     // Read all files and folders in the current directory
     const dirItems = fs.readdirSync(currentDirectory);
-    console.log("processing dir:", currentDirectory);
 
     for (const dirItem of dirItems) {
       const fullPath = path.join(currentDirectory, dirItem);
@@ -59,15 +59,18 @@ async function generate() {
 
       if (pathStats.isDirectory()) {
         // FOLDER NAME
-        
-        const route_key = dirItem.replace(/\[|\]/g, "").replace(/-/g, "_")
-        route_tree[route_key.replace(/\[|\]/g, "")] = route_tree[route_key] || {};
+
+        const route_key = dirItem.replace(/\[|\]/g, "").replace(/-/g, "_");
+        route_tree[route_key.replace(/\[|\]/g, "")] =
+          route_tree[route_key] || {};
         await iterateDirectory(
           fullPath,
           route_tree[route_key.replace(/\[|\]/g, "")],
           [...pathStack, dirItem]
         );
       } else if (dirItem.endsWith(".ts")) {
+        logger.routeScanner("Scanning route file:", fullPath);
+
         // METADATA STUFF
         const endpointMethod = dirItem.replace(".ts", ""); // GET, POST
         const endpointRoute = "/" + pathStack.join("/"); // e.g., /users/[userId]/
@@ -102,9 +105,7 @@ async function generate() {
         }
 
         // CHECK FILE EXPORTS
-        console.log("checking file exports:", actualFilePath);
         const exports = listExportsSync(actualFilePath);
-        console.log("found exports:", exports);
         for (const exportedVariable of exports) {
           if (exportedVariable === "response") {
             const schemaImportName = `${endpoint_signature}_response`;
@@ -135,8 +136,9 @@ async function generate() {
         };
 
         // Also add to route tree
-        const route_key = endpointMethod.replace(/\[|\]/g, "").replace(/-/g, "_")
-        console.log("inserting rotue key" , endpointMethod, "as", route_key);
+        const route_key = endpointMethod
+          .replace(/\[|\]/g, "")
+          .replace(/-/g, "_");
         route_tree[route_key] = {
           request: request,
           response: response,
@@ -164,10 +166,8 @@ async function generate() {
     }
   }
 
-  console.log("iterating source dir:", SRC_DIR);
   await iterateDirectory(SRC_DIR, route_tree, []);
 
-  console.log("scanning models dir:", MODEL_DIR);
   const models_res = await scanModels(MODEL_DIR);
   imports.push(
     ...models_res.imports.map(
@@ -178,7 +178,6 @@ async function generate() {
     /"__CODE_START__(.*?)__CODE_END__"/g,
     "$1"
   );
-  console.log("models_res:", models_res);
 
   // Serialize the map to a string, but preserve the variable names
   let jsonString = JSON.stringify(endpoints, null, 2);
@@ -225,7 +224,7 @@ export type Endpoints<T extends keyof EndpointTypes> = EndpointTypes[T];
 `;
 
   fs.writeFileSync(OUTPUT_FILE, fileContent);
-  console.log("✅ API Contract generated at src/contract.ts");
+  logger.log("API Contract generated at src/contract.ts");
 }
 
 function debounce(func: Function, wait: number) {
@@ -238,18 +237,17 @@ function debounce(func: Function, wait: number) {
 async function run() {
   try {
     // Always run once immediately
-    console.clear();
+    logger.clear();
     await generate();
 
     if (options.watch) {
-      console.log("\n👀 Watching for changes in routes and models...");
-
+      logger.log("Watching for changes in routes and models...");
       const debouncedGenerate = debounce(async () => {
-        console.log("\n🔄 Change detected. Regenerating...");
+        logger.log("Change detected. Regenerating...");
         try {
           await generate();
         } catch (err) {
-          console.error("❌ Generation failed during watch:", err);
+          logger.error("❌ Generation failed during watch:", err);
         }
       }, 200);
 
@@ -270,7 +268,7 @@ async function run() {
       process.exit(0);
     }
   } catch (err) {
-    console.error("❌ Generation failed:", err);
+    logger.error("❌ Generation failed:", err);
     process.exit(1);
   }
 }

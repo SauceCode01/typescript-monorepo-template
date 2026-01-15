@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { listExportsAsync, listExportsSync } from "./utils";
+import { logger } from "./logging.utils";
 
 export const scanModels = async (modelDir: string) => {
   const imports: {
@@ -14,7 +15,7 @@ export const scanModels = async (modelDir: string) => {
   } = {};
 
   const modelTypes: {
-    signature: string; 
+    signature: string;
     typeDef: string;
   }[] = [];
 
@@ -24,21 +25,19 @@ export const scanModels = async (modelDir: string) => {
     pathStack: string[]
   ) {
     const dirItems = fs.readdirSync(currentDirectory);
-    console.log("processing dir:", currentDirectory);
-    console.log("dir items:", dirItems);
 
     for (const dirItem of dirItems) {
-      console.log("processing item:", dirItem);
       const subDirPath = path.join(currentDirectory, dirItem);
       const pathStats = fs.statSync(subDirPath);
 
       if (pathStats.isDirectory()) {
         // FOLDER NAME
         tree[dirItem] = tree[dirItem] || {};
-        console.log("crated new tree endtry for " + dirItem);
         await iterateModels(subDirPath, tree[dirItem], [...pathStack, dirItem]);
       } else if (dirItem.endsWith(".ts")) {
         // MODEL FILE
+        logger.modelScanner("Scanning model file:", subDirPath);
+
         const raw_model_name = dirItem.replace(".ts", ""); // GET, POST
         const edited_model_name = raw_model_name + "_model";
         const endpointImportPath =
@@ -48,26 +47,12 @@ export const scanModels = async (modelDir: string) => {
           .replace(/\//g, "")
           .replace(/\./g, "_");
 
-        console.log(
-          "creatignf file sign",
-          fileSignature,
-          pathStack,
-          raw_model_name
-        );
-
         const actualFilePath =
           "./src/models/" + pathStack.join("/") + "/" + raw_model_name + ".ts";
 
         // CHECK FILE EXPORTS
-        console.log("checking file exports:", actualFilePath);
         const exports = listExportsSync(actualFilePath);
-        console.log("found exports:", exports);
         for (const exportedVariable of exports) {
-          console.log(
-            "processing export:",
-            exportedVariable,
-            "of model name" + raw_model_name
-          );
           const importAlias = `${fileSignature}_${exportedVariable}`;
 
           imports.push({
@@ -87,10 +72,7 @@ export const scanModels = async (modelDir: string) => {
     }
   }
 
-  const res = await iterateModels(modelDir, modelTree, []);
-
-  console.log("imports so far:", imports);
-  console.log("modelTree so far:", modelTree);
+  await iterateModels(modelDir, modelTree, []);
 
   return { imports, modelTree };
 };
